@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bifostspectra</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --bg-soft:#111;
+    --card:#151515;
+    --ink:#eaeaea;
+    --muted:#bfbfbf;
+    --line:#2a2a2a;
+    --accent:#ffffff;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;
+    background: radial-gradient(1200px 800px at 20% -10%, #1a1a1a 0%, #0b0b0b 60%, #000 100%) fixed;
+    color:var(--ink);
+    line-height:1.55;
+  }
+
+  /* Header */
+  header{
+    position:relative;
+    padding:48px 20px 36px;
+    border-bottom:1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0)) ;
+    overflow:clip;
+  }
+  .container{max-width:1100px;margin:0 auto;padding:0 20px}
+  .brand{
+    display:flex;align-items:center;gap:14px;margin-bottom:14px;
+  }
+  .brand svg{width:38px;height:38px;flex:0 0 auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+  h1{margin:0;font-size:28px;letter-spacing:.4px}
+  .subtitle{margin:6px 0 0;color:var(--muted)}
+  .header-actions{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .pill{
+    display:inline-flex;gap:8px;align-items:center;
+    border:1px solid var(--line);padding:8px 12px;border-radius:999px;color:var(--ink);
+  }
+
+  /* Section titles */
+  section{padding:28px 0}
+  .section-title{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin:6px 0 18px;
+  }
+  .section-title h2{margin:0;font-size:22px}
+  .section-title .line{
+    flex:1;height:1px;background:linear-gradient(90deg,transparent, var(--line), transparent);
+  }
+
+  /* Students grid */
+  .grid{
+    display:grid;gap:16px;
+    grid-template-columns: repeat( auto-fill, minmax(220px, 1fr) );
+  }
+  .card{
+    background:linear-gradient(180deg, #151515, #111);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .card .photo{
+    aspect-ratio: 5 / 3;
+    background:
+      repeating-linear-gradient(45deg, #0e0e0e 0 12px, #141414 12px 24px);
+    display:flex;align-items:center;justify-content:center;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .avatar{
+    width:84px;height:84px;border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, #2b2b2b, #0f0f0f 70%);
+    border:1px solid #2e2e2e; display:grid;place-items:center;
+    color:#fff;font-weight:700;font-size:26px;letter-spacing:.5px;
+    filter:drop-shadow(0 6px 18px rgba(0,0,0,.45));
+  }
+  .card .body{padding:14px 14px 16px}
+  .name{font-size:16px;font-weight:700;margin:0 0 4px}
+  .role{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .kv{display:grid;grid-template-columns:72px 1fr; column-gap:8px; row-gap:6px; font-size:13px}
+  .kv .k{color:#9a9a9a}
+  .social a{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--line);padding:8px 10px;border-radius:12px;margin-top:10px;
+    text-decoration:none;color:var(--ink);
+  }
+  .social a:hover{background:#121212}
+
+  /* Album tabs */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{
+    border:1px solid var(--line); background:#0d0d0d; color:var(--ink);
+    padding:8px 12px;border-radius:10px;cursor:pointer;user-select:none;
+  }
+  .tab.active{outline:2px solid #fff; outline-offset:0}
+  .album-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px}
+  .album-toolbar input[type="file"]{display:none}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    border:1px solid var(--line); padding:10px 14px; border-radius:12px; background:#111;color:var(--ink);
+  }
+  .gallery{
+    display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  }
+  .thumb{
+    position:relative; overflow:hidden; border-radius:12px; border:1px solid var(--line);
+    aspect-ratio: 4/3; background:#0f0f0f;
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05)}
+  .thumb .cap{
+    position:absolute;left:0;right:0;bottom:0;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.7));
+    color:#fff;font-size:12px;padding:30px 8px 6px;
+  }
+
+  /* Lightbox */
+  .lightbox{
+    position:fixed;inset:0;background:rgba(0,0,0,.85);
+    display:none;align-items:center;justify-content:center;z-index:50;padding:24px;
+  }
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:min(1200px, 92vw); max-height:82vh; border-radius:14px; border:1px solid #333}
+  .lightbox .close{position:absolute;top:18px;right:18px;border:1px solid #333;background:#0c0c0c;color:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}
+
+  /* Footer / Social block */
+  .class-social{
+    display:grid;gap:12px;grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  }
+  .social-card{
+    border:1px solid var(--line);border-radius:14px;background:#101010;padding:16px;
+  }
+  .social-card h3{margin:0 0 6px}
+  .social-card a{color:#fff;text-decoration:none;border-bottom:1px dotted #444}
+  footer{
+    border-top:1px solid var(--line); margin-top:28px; padding:20px;
+    display:flex;align-items:center;justify-content:center;gap:10px;color:#9a9a9a
+  }
+  footer svg{width:18px;height:18px;opacity:.9}
+
+  /* Print tweaks */
+  @media print{
+    .album-toolbar,.tabs,.lightbox,.btn{display:none !important}
+    header{padding:18px}
+    body{background:#000 !important}
+    .card{break-inside:avoid}
+  }
+
+  /* small adjustments for audio control */
+  .fav-audio audio{ width:100%; margin-top:6px; background:#000; border-radius:8px; }
+  .fav-audio .k{padding-top:6px}
+</style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="brand">
+        <!-- Ornamen bajak laut monokrom (nuansa ece) -->
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <g fill="#fff">
+            <circle cx="32" cy="26" r="10"/>
+            <rect x="10" y="23" width="44" height="6" rx="3"/>
+            <rect x="6" y="8" width="10" height="6" rx="3" transform="rotate(-30 11 11)"/>
+            <rect x="48" y="8" width="10" height="6" rx="3" transform="rotate(30 53 11)"/>
+            <rect x="6" y="40" width="10" height="6" rx="3" transform="rotate(30 11 43)"/>
+            <rect x="48" y="40" width="10" height="6" rx="3" transform="rotate(-30 53 43)"/>
+            <rect x="24" y="34" width="16" height="12" rx="3"/>
+          </g>
+        </svg>
+        <div>
+          <h1>Album & Data Kelas</h1>
+          <p class="subtitle">Kenangan & info murid — tema gelap, lengkap dengan lagu favorit</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="pill" title="Tahun ajaran">
+          📚 Tahun Ajaran: <strong>&nbsp;2025/2026</strong>
+        </span>
+        <span class="pill" title="Wali kelas">
+          🧑‍🏫 Wali Kelas: <strong>&nbsp;Frengki</strong>
+        </span>
+        <span class="pill" title="Sosmed kelas">
+          📸@bifostspectra
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Siswa -->
+    <section id="siswa">
+      <div class="section-title">
+        <h2>Daftar Siswa (36)</h2>
+        <div class="line"></div>
+      </div>
+      <div class="grid" id="studentGrid" aria-live="polite"></div>
+    </section>
+
+    <!-- Album -->
+    <section id="album">
+      <div class="section-title">
+        <h2>Album Kenangan (Kelompok)</h2>
+        <div class="line"></div>
+      </div>
+
+      <div class="tabs" id="albumTabs" role="tablist" aria-label="Kelompok album">
+        <button class="tab active" data-group="kegiatan" role="tab" aria-selected="true">Kegiatan Kelas</button>
+        <button class="tab" data-group="lomba" role="tab" aria-selected="false">Lomba</button>
+        <button class="tab" data-group="wisuda" role="tab" aria-selected="false">Wisuda</button>
+        <button class="tab" data-group="tour" role="tab" aria-selected="false">Study Tour</button>
+      </div>
+
+      <div class="album-toolbar">
+        <label class="btn" for="fileInput">⬆️ Tambah Foto ke Kelompok Aktif</label>
+        <input type="file" id="fileInput" accept="image/*" multiple />
+        <button class="btn" id="btnClear">🗑️ Bersihkan Semua Foto (halaman ini)</button>
+      </div>
+
+      <div class="gallery" id="gallery"></div>
+    </section>
+
+    <!-- Jadwal Pelajaran -->
+    <section id="jadwal-pelajaran">
+      <div class="section-title">
+        <h2>📚 Jadwal Pelajaran</h2>
+        <div class="line"></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;text-align:center;font-size:14px;">
+        <thead style="background:#111;">
+          <tr>
+            <th style="padding:8px;border:1px solid #333;">Hari</th>
+            <th style="padding:8px;border:1px solid #333;">Jam 1</th>
+            <th style="padding:8px;border:1px solid #333;">Jam 2</th>
+            <th style="padding:8px;border:1px solid #333;">Jam 3</th>
+            <th style="padding:8px;border:1px solid #333;">Jam 4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Senin</td><td>Matematika</td><td>Fisika</td><td>Kimia</td><td>Biologi</td></tr>
+          <tr><td>Selasa</td><td>B. Indonesia</td><td>Sejarah</td><td>Ekonomi</td><td>PKN</td></tr>
+          <tr><td>Rabu</td><td>Matematika</td><td>Bahasa Inggris</td><td>Sosiologi</td><td>Seni Budaya</td></tr>
+          <tr><td>Kamis</td><td>Geografi</td><td>Biologi</td><td>Kimia</td><td>Prakarya</td></tr>
+          <tr><td>Jumat</td><td>Olahraga</td><td>Agama</td><td>IPS</td><td>BK</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Jadwal Piket -->
+    <section id="jadwal-piket">
+      <div class="section-title">
+        <h2>🧹 Jadwal Piket</h2>
+        <div class="line"></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;text-align:center;font-size:14px;">
+        <thead style="background:#111;">
+          <tr>
+            <th style="padding:8px;border:1px solid #333;">Hari</th>
+            <th style="padding:8px;border:1px solid #333;">Petugas 1</th>
+            <th style="padding:8px;border:1px solid #333;">Petugas 2</th>
+            <th style="padding:8px;border:1px solid #333;">Petugas 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Senin</td><td>Siswa 01</td><td>Siswa 02</td><td>Siswa 03</td></tr>
+          <tr><td>Selasa</td><td>Siswa 04</td><td>Siswa 05</td><td>Siswa 06</td></tr>
+          <tr><td>Rabu</td><td>Siswa 07</td><td>Siswa 08</td><td>Siswa 09</td></tr>
+          <tr><td>Kamis</td><td>Siswa 10</td><td>Siswa 11</td><td>Siswa 12</td></tr>
+          <tr><td>Jumat</td><td>Siswa 13</td><td>Siswa 14</td><td>Siswa 15</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Sosmed Kelas -->
+    <section id="sosmed-kelas">
+      <div class="section-title">
+        <h2>🔗 Sosmed Kelas</h2>
+        <div class="line"></div>
+      </div>
+      <div class="class-social">
+        <div class="social-card">
+          <h3>Instagram Kelas</h3>
+          <p>📷 <a id="igKelas" href="https://instagram.com/kelas_kita" target="_blank" rel="noopener">@kelas_kita</a></p>
+          <p class="muted">Ganti link & username di bagian <code>classSocial</code> pada skrip.</p>
+        </div>
+        <div class="social-card">
+          <h3>TikTok Kelas</h3>
+          <p>🎵 <a id="tiktokKelas" href="https://www.tiktok.com/@kelas_kita" target="_blank" rel="noopener">@kelas_kita</a></p>
+        </div>
+        <div class="social-card">
+          <h3>YouTube Kelas</h3>
+          <p>▶️ <a id="ytKelas" href="https://www.youtube.com/@kelas_kita" target="_blank" rel="noopener">@kelas_kita</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-modal="true" role="dialog">
+    <button class="close" id="closeLightbox">Tutup ✕</button>
+    <img alt="Foto diperbesar" id="lightboxImg" />
+  </div>
+
+<script>
+/* =========================
+   DATA SISWA (EDIT DI SINI)
+   ========================= */
+const students = [
+  // Format: { no: 1, nama: 'Nama Siswa', peran: 'Peran/Posisi', hobi: 'Hobi', ig: '@username', lagu: 'path/to.mp3' }
+  {no:1,nama:'Siswa 01',peran:'Ketua Kelas',hobi:'Membaca',ig:'@siswa01', lagu:'lagu/siswa01.mp3'},
+  {no:2,nama:'Siswa 02',peran:'Wakil Ketua',hobi:'Badminton',ig:'@siswa02', lagu:'lagu/siswa02.mp3'},
+  {no:3,nama:'Siswa 03',peran:'Sekretaris',hobi:'Menulis',ig:'@siswa03', lagu:'lagu/siswa03.mp3'},
+  {no:4,nama:'Siswa 04',peran:'Bendahara',hobi:'Fotografi',ig:'@siswa04', lagu:'lagu/siswa04.mp3'},
+  {no:5,nama:'Siswa 05',peran:'Seksi Humas',hobi:'Gaming',ig:'@siswa05', lagu:'lagu/siswa05.mp3'},
+  {no:6,nama:'Siswa 06',peran:'Seksi Kegiatan',hobi:'Musik',ig:'@siswa06', lagu:'lagu/siswa06.mp3'},
+  {no:7,nama:'Siswa 07',peran:'Anggota',hobi:'Menggambar',ig:'@siswa07', lagu:'lagu/siswa07.mp3'},
+  {no:8,nama:'Siswa 08',peran:'Anggota',hobi:'Futsal',ig:'@siswa08', lagu:'lagu/siswa08.mp3'},
+  {no:9,nama:'Siswa 09',peran:'Anggota',hobi:'Menyanyi',ig:'@siswa09', lagu:'lagu/siswa09.mp3'},
+  {no:10,nama:'Siswa 10',peran:'Anggota',hobi:'Vlog',ig:'@siswa10', lagu:'lagu/siswa10.mp3'},
+  {no:11,nama:'Siswa 11',peran:'Anggota',hobi:'Membaca',ig:'@siswa11', lagu:'lagu/siswa11.mp3'},
+  {no:12,nama:'Siswa 12',peran:'Anggota',hobi:'Basket',ig:'@siswa12', lagu:'lagu/siswa12.mp3'},
+  {no:13,nama:'Siswa 13',peran:'Anggota',hobi:'Menari',ig:'@siswa13', lagu:'lagu/siswa13.mp3'},
+  {no:14,nama:'Siswa 14',peran:'Anggota',hobi:'Desain',ig:'@siswa14', lagu:'lagu/siswa14.mp3'},
+  {no:15,nama:'Siswa 15',peran:'Anggota',hobi:'Catur',ig:'@siswa15', lagu:'lagu/siswa15.mp3'},
+  {no:16,nama:'Siswa 16',peran:'Anggota',hobi:'Memasak',ig:'@siswa16', lagu:'lagu/siswa16.mp3'},
+  {no:17,nama:'Siswa 17',peran:'Anggota',hobi:'Renang',ig:'@siswa17', lagu:'lagu/siswa17.mp3'},
+  {no:18,nama:'Siswa 18',peran:'Anggota',hobi:'Fotografi',ig:'@siswa18', lagu:'lagu/siswa18.mp3'},
+  {no:19,nama:'Siswa 19',peran:'Anggota',hobi:'Coding',ig:'@siswa19', lagu:'lagu/siswa19.mp3'},
+  {no:20,nama:'Siswa 20',peran:'Anggota',hobi:'Membaca',ig:'@siswa20', lagu:'lagu/siswa20.mp3'},
+  {no:21,nama:'Siswa 21',peran:'Anggota',hobi:'Game',ig:'@siswa21', lagu:'lagu/siswa21.mp3'},
+  {no:22,nama:'Siswa 22',peran:'Anggota',hobi:'Menulis',ig:'@siswa22', lagu:'lagu/siswa22.mp3'},
+  {no:23,nama:'Siswa 23',peran:'Anggota',hobi:'Sepak Bola',ig:'@siswa23', lagu:'lagu/siswa23.mp3'},
+  {no:24,nama:'Siswa 24',peran:'Anggota',hobi:'Musik',ig:'@siswa24', lagu:'lagu/siswa24.mp3'},
+  {no:25,nama:'Siswa 25',peran:'Anggota',hobi:'Anime',ig:'@siswa25', lagu:'lagu/siswa25.mp3'},
+  {no:26,nama:'Siswa 26',peran:'Anggota',hobi:'Membaca',ig:'@siswa26', lagu:'lagu/siswa26.mp3'},
+  {no:27,nama:'Siswa 27',peran:'Anggota',hobi:'Menggambar',ig:'@siswa27', lagu:'lagu/siswa27.mp3'},
+  {no:28,nama:'Siswa 28',peran:'Anggota',hobi:'Basket',ig:'@siswa28', lagu:'lagu/siswa28.mp3'},
+  {no:29,nama:'Siswa 29',peran:'Anggota',hobi:'Menari',ig:'@siswa29', lagu:'lagu/siswa29.mp3'},
+  {no:30,nama:'Siswa 30',peran:'Anggota',hobi:'Desain',ig:'@siswa30', lagu:'lagu/siswa30.mp3'},
+  {no:31,nama:'Siswa 31',peran:'Anggota',hobi:'Catur',ig:'@siswa31', lagu:'lagu/siswa31.mp3'},
+  {no:32,nama:'Siswa 32',peran:'Anggota',hobi:'Memasak',ig:'@siswa32', lagu:'lagu/siswa32.mp3'},
+  {no:33,nama:'Siswa 33',peran:'Anggota',hobi:'Renang',ig:'@siswa33', lagu:'lagu/siswa33.mp3'},
+  {no:34,nama:'Siswa 34',peran:'Anggota',hobi:'Fotografi',ig:'@siswa34', lagu:'lagu/siswa34.mp3'},
+  {no:35,nama:'Siswa 35',peran:'Anggota',hobi:'Coding',ig:'@siswa35', lagu:'lagu/siswa35.mp3'},
+  {no:36,nama:'Siswa 36',peran:'Anggota',hobi:'Menyanyi',ig:'@siswa36', lagu:'lagu/siswa36.mp3'},
+];
+
+/* =========================
+   AKUN SOSMED KELAS (EDIT)
+   ========================= */
+const classSocial = {
+  instagram: { user: '@kelas_kita', url: 'https://instagram.com/kelas_kita' },
+  tiktok: { user: '@kelas_kita', url: 'https://www.tiktok.com/@kelas_kita' },
+  youtube: { user: '@kelas_kita', url: 'https://www.youtube.com/@kelas_kita' },
+};
+
+/* =========================
+   RENDER SISWA
+   ========================= */
+const grid = document.getElementById('studentGrid');
+
+function initials(name){
+  const parts = name.trim().split(/\s+/);
+  let ini = parts[0]?.[0] ?? '';
+  if(parts.length>1) ini += parts[1][0];
+  return ini.toUpperCase();
+}
+
+function studentCard(s){
+  const igClean = s.ig?.replace(/^@/,'') || '';
+  const igUrl = igClean ? `https://instagram.com/${igClean}` : '#';
+  // audio src use s.lagu (ensure files placed in folder sesuai path)
+  const audioHtml = s.lagu ? `
+    <div class="fav-audio" style="margin-top:8px;">
+      <div class="kv">
+        <div class="k">Lagu</div>
+        <div>
+          <audio controls preload="none">
+            <source src="${s.lagu}" type="audio/mpeg">
+            Browser Anda tidak mendukung audio.
+          </audio>
+        </div>
+      </div>
+    </div>
+  ` : '';
+  return `
+    <article class="card" aria-label="${s.nama}">
+      <div class="photo">
+        <div class="avatar" aria-hidden="true">${initials(s.nama)}</div>
+      </div>
+      <div class="body">
+        <h3 class="name">${String(s.no).padStart(2,'0')}. ${s.nama}</h3>
+        <p class="role">${s.peran}</p>
+        <div class="kv">
+          <div class="k">Hobi</div><div>${s.hobi}</div>
+          <div class="k">IG</div><div><a href="${igUrl}" target="_blank" rel="noopener" style="color:#fff;text-decoration:none;border-bottom:1px dotted #444">@${igClean}</a></div>
+        </div>
+        <div class="social">
+          <a href="${igUrl}" target="_blank" rel="noopener" aria-label="Buka Instagram ${s.nama}">📷 Kunjungi IG</a>
+        </div>
+        ${audioHtml}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudents(){
+  grid.innerHTML = students.map(studentCard).join('');
+}
+renderStudents();
+
+/* =========================
+   ALBUM – Penyimpanan lokal
+   ========================= */
+const galleryEl = document.getElementById('gallery');
+const tabsEl = document.getElementById('albumTabs');
+const fileInput = document.getElementById('fileInput');
+const btnClear = document.getElementById('btnClear');
+const groups = ['kegiatan','lomba','wisuda','tour'];
+
+let activeGroup = 'kegiatan';
+const albumStore = {
+  kegiatan: [],
+  lomba: [],
+  wisuda: [],
+  tour: [],
+};
+
+function renderGallery(){
+  const list = albumStore[activeGroup];
+  if(!list || list.length === 0){
+    galleryEl.innerHTML = `
+      <div class="thumb" style="display:grid;place-items:center;aspect-ratio: 16/9;">
+        <div style="text-align:center;color:#9a9a9a;padding:10px">
+          Belum ada foto di kelompok <strong>${activeGroup}</strong>.<br/>
+          Gunakan tombol <em>Tambah Foto</em> untuk mengunggah.
+        </div>
+      </div>`;
+    return;
+  }
+  galleryEl.innerHTML = list.map(item => `
+    <figure class="thumb">
+      <img src="${item.src}" alt="${item.caption}">
+      <figcaption class="cap">${item.caption}</figcaption>
+    </figure>
+  `).join('');
+  // Lightbox
+  galleryEl.querySelectorAll('.thumb img').forEach(img=>{
+    img.addEventListener('click', ()=>{ openLightbox(img.src); });
+  });
+}
+renderGallery();
+
+tabsEl.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  tabsEl.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  activeGroup = btn.dataset.group;
+  renderGallery();
+});
+
+fileInput.addEventListener('change', async (e)=>{
+  const files = [...e.target.files];
+  for(const f of files){
+    const src = await readFileAsDataURL(f);
+    albumStore[activeGroup].push({src, caption: f.name});
+  }
+  fileInput.value = '';
+  renderGallery();
+});
+
+btnClear.addEventListener('click', ()=>{
+  if(confirm('Bersihkan semua foto pada halaman ini? (Data album dihapus dari memori halaman)')){
+    groups.forEach(g=> albumStore[g] = []);
+    renderGallery();
+  }
+});
+
+function readFileAsDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+
+/* =========================
+   LIGHTBOX
+   ========================= */
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const closeLightboxBtn = document.getElementById('closeLightbox');
+function openLightbox(src){
+  lightboxImg.src = src;
+  lightbox.classList.add('open');
+}
+closeLightboxBtn.addEventListener('click', ()=> lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e)=> {
+  if(e.target === lightbox) lightbox.classList.remove('open');
+});
+
+/* =========================
+   ISI LINK SOSMED KELAS
+   ========================= */
+(function syncClassSocial(){
+  const ig = document.getElementById('igKelas');
+  const tk = document.getElementById('tiktokKelas');
+  const yt = document.getElementById('ytKelas');
+  ig.textContent = classSocial.instagram.user;
+  ig.href = classSocial.instagram.url;
+  tk.textContent = classSocial.tiktok.user;
+  tk.href = classSocial.tiktok.url;
+  yt.textContent = classSocial.youtube.user;
+  yt.href = classSocial.youtube.url;
+})();
+</script>
+
+<footer>
+  <!-- Ornamen bajak laut kecil -->
+  <svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#bbb">
+    <circle cx="32" cy="26" r="8"/><rect x="12" y="24" width="40" height="4" rx="2"/>
+    <rect x="8" y="10" width="10" height="5" rx="3" transform="rotate(-30 13 12.5)"/>
+    <rect x="46" y="10" width="10" height="5" rx="3" transform="rotate(30 51 12.5)"/>
+  </g></svg>
+  <span>© Kelas Kita — Album Kenangan</span>
+</footer>
+</body>
+</html>
